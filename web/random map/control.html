@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG Map Controller</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        /* Specific overrides for the control page */
+        body {
+            background: #111;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status {
+            margin-top: 1rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Control Panel</h1>
+        <div class="controls">
+            <button id="random-btn" class="btn">สุ่มแมพ (Start)</button>
+        </div>
+        <div class="status" id="status-text">Ready</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

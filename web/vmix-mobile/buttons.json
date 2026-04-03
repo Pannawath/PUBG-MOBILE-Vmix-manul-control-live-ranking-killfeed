@@ -1,0 +1,31 @@
+{
+  "activePreset": "In game",
+  "presets": {
+    "In game": [
+      {
+        "id": "b_1772702636505",
+        "label": "ob1main",
+        "input": "6",
+        "size": "normal",
+        "colSpan": 1,
+        "widthPct": 50
+      },
+      {
+        "id": "b_1772702647692",
+        "label": "ob2",
+        "input": "7",
+        "widthPct": 50
+      },
+      {
+        "id": "b_1772702655781",
+        "label": "2ob",
+        "input": "8"
+      },
+      {
+        "id": "b_1772702663166",
+        "label": "map-ob",
+        "input": "9"
+      }
+    ]
+  }
+}

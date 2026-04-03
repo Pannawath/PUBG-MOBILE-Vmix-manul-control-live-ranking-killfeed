@@ -1,0 +1,13 @@
+{
+  "name": "pubg-map-randomizer",
+  "version": "1.0.0",
+  "description": "Remote control map randomizer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0c10">
+    <title>vMix Director</title>
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0c10;
+            --surface: #111318;
+            --surface2: #1a1d24;
+            --border: rgba(255, 255, 255, 0.07);
+            --border-active: rgba(255, 255, 255, 0.2);
+            --program: #e53e3e;
+            --preview: #38a169;
+            --blue: #3182ce;
+            --text: #e2e8f0;
+            --text-muted: #718096;
+            --text-dim: #4a5568;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            gap: 10px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .app-logo {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        .status-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            padding: 3px 8px;
+            background: rgba(56, 161, 105, 0.15);
+            border: 1px solid rgba(56, 161, 105, 0.3);
+            border-radius: 20px;
+            color: var(--preview);
+        }
+
+        .status-chip.offline {
+            background: rgba(229, 62, 62, 0.15);
+            border-color: rgba(229, 62, 62, 0.3);
+            color: var(--program);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Preset row */
+        .preset-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .preset-select {
+            flex: 1;
+            min-width: 0;
+            background: var(--surface2);
+            border: 1px solid var(--border-active);
+            color: var(--text);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .icon-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .icon-btn:active {
+            background: var(--border-active);
+        }
+
+        .topbar-right {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ===== SCENE GRID ===== */
+        .scenes-section {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+        }
+
+        .edit-btn {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-active);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .edit-btn.active {
+            background: var(--blue);
+            border-color: var(--blue);
+            color: #fff;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        /* ===== SCENE BUTTON - Native 16:9 Aspect Ratio ===== */
+        .scene-btn {
+            position: relative;
+            background-color: var(--surface);
+            background-size: cover;
+            background-position: center;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            height: auto;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        /* ใช้ ::after เป็น active flash */
+        .scene-btn:active::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.15);
+            z-index: 3;
+        }
+
+        /* inner wrapper ครอบ content ทั้งหมด */
+        .scene-btn-inner {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .scene-btn-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.05) 55%, transparent 100%);
+            z-index: 1;
+        }
+
+        .scene-btn-content {
+            position: relative;
+            z-index: 2;
+            padding: 6px 8px;
+            width: 100%;
+        }
+
+        .scene-btn-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .scene-btn-sub {
+            font-size: 0.62rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 1px;
+        }
+
+        /* Wide = span 2 columns */
+        .scene-btn.wide {
+            grid-column: span 2;
+        }
+
+        /* Program / Preview status */
+        .scene-btn.program {
+            border-color: var(--program);
+            border-width: 2.5px;
+            box-shadow: 0 0 0 1px rgba(229, 62, 62, 0.4), inset 0 0 20px rgba(229, 62, 62, 0.1);
+        }
+
+        .scene-btn.preview {
+            border-color: var(--preview);
+            border-width: 2.5px;
+            box-shadow: 0 0 0 1px rgba(56, 161, 105, 0.4), inset 0 0 20px rgba(56, 161, 105, 0.1);
+        }
+
+        /* Badge indicator top-right */
+        .state-badge {
+            display: none;
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 3px;
+            z-index: 4;
+        }
+
+        .scene-btn.program .state-badge {
+            display: block;
+            background: var(--program);
+            color: #fff;
+        }
+
+        .scene-btn.preview .state-badge {
+            display: block;
+            background: var(--preview);
+            color: #fff;
+        }
+
+        /* Edit mode */
+        .delete-badge {
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--program);
+            color: #fff;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            font-weight: 700;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            border: none;
+        }
+
+        .resize-badge {
+            display: none;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-active);
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 5;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .edit-mode .delete-badge {
+            display: flex;
+        }
+
+        .add-scene-btn {
+            display: none;
+            width: 100%;
+            background: transparent;
+            border: 1.5px dashed var(--border-active);
+            color: var(--text-dim);
+            height: 44px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .edit-mode .add-scene-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-scene-btn:active {
+            background: var(--surface2);
+        }
+
+        /* ===== SETTINGS PANEL ===== */
+        .settings-panel {
+            display: none;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            gap: 16px;
+            flex-direction: column;
+        }
+
+        .settings-panel.open {
+            display: flex;
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .settings-label b {
+            color: var(--text);
+        }
+
+        /* ===== SWITCHER PANEL (bottom) ===== */
+        .switcher-panel {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .switcher-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 16px 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-cut {
+            background: var(--program);
+            color: #fff;
+        }
+
+        .btn-cut:active {
+            background: #c53030;
+        }
+
+        .btn-auto {
+            background: var(--surface2);
+            border: 1.5px solid var(--blue);
+            color: var(--blue);
+        }
+
+        .btn-auto:active {
+            background: rgba(49, 130, 206, 0.2);
+        }
+
+        /* ===== LEGEND BAR ===== */
+        .legend-bar {
+            display: flex;
+            gap: 16px;
+            padding: 6px 12px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border-active);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 340px;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border-active);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--blue);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-ghost {
+            padding: 9px 18px;
+            background: transparent;
+            border: 1px solid var(--border-active);
+            color: var(--text-muted);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            padding: 9px 18px;
+            background: var(--blue);
+            border: none;
+            color: #fff;
+            border-radius: 6px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* ===== FULLSCREEN BTN ===== */
+        #btn-fullscreen {
+            position: fixed;
+            bottom: 80px;
+            right: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border-active);
+            color: var(--text-muted);
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== LANDSCAPE ===== */
+        @media (orientation: landscape) and (max-height: 600px) {
+            body {
+                overflow: hidden;
+            }
+
+            .main-layout {
+                flex-direction: row;
+                height: calc(100vh - 48px);
+                /* topbar */
+            }
+
+            .scenes-section {
+                flex: 1;
+                overflow-y: auto;
+            }
+
+            .switcher-panel {
+                width: 130px;
+                grid-template-columns: 1fr;
+                border-top: none;
+                border-left: 1px solid var(--border);
+                padding: 10px;
+                justify-content: center;
+                align-content: center;
+            }
+
+            .legend-bar {
+                display: none;
+            }
+
+            #btn-fullscreen {
+                bottom: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <span class="app-logo">vMix Director</span>
+            <div id="status-chip" class="status-chip">
+                <div class="status-dot"></div>
+                <span id="status-text">Online</span>
+            </div>
+        </div>
+
+        <!-- Preset Selector -->
+        <div class="preset-row">
+            <select id="preset-selector" class="preset-select" onchange="changePreset(this.value)">
+                <!-- Dynamic -->
+            </select>
+            <button class="icon-btn" onclick="createNewPreset()" title="สร้าง Preset ใหม่">＋</button>
+            <button class="icon-btn" onclick="renameCurrentPreset()" title="เปลี่ยนชื่อ">✎</button>
+            <button class="icon-btn" onclick="deleteCurrentPreset()" title="ลบ Preset"
+                style="color:#e53e3e;">🗑</button>
+        </div>
+
+        <!-- Settings & Fullscreen -->
+        <div class="topbar-right">
+            <button class="icon-btn" onclick="toggleSettings()" title="ตั้งค่า">⚙</button>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-row">
+            <span class="settings-label">📳 สั่นมือถือ</span>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" id="vibration-toggle" onchange="saveSettings()"
+                    style="width:17px;height:17px;cursor:pointer;">
+                <span id="vibration-label" style="font-size:0.8rem;color:var(--text-muted);">เปิด</span>
+            </label>
+        </div>
+        <div class="settings-row">
+            <span class="settings-label">🗂 จำนวนคอลัมน์: <b id="cols-value-label">2</b></span>
+            <input type="range" id="cols-slider" min="1" max="4" step="1" value="2"
+                onchange="saveSettings(); applyColumns();"
+                oninput="document.getElementById('cols-value-label').textContent=this.value"
+                style="width:120px;cursor:pointer;">
+        </div>
+        <div class="settings-row">
+            <span class="settings-label">🌁 ความเร็ว AUTO: <b id="auto-dur-label">800ms</b></span>
+            <input type="range" id="auto-dur-slider" min="200" max="5000" step="100" value="800"
+                onchange="saveSettings()"
+                oninput="document.getElementById('auto-dur-label').textContent=this.value+'ms'; autoDuration=parseInt(this.value);"
+                style="width:120px;cursor:pointer;">
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-bar">
+        <div class="legend-item">
+            <div class="legend-dot" style="background:var(--program);"></div>
+            <span>Program</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:var(--preview);"></div>
+            <span>Preview</span>
+        </div>
+        <div class="legend-item" style="color:var(--text-dim);">
+            กดซีน → Preview → CUT/AUTO
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+
+        <!-- Scenes -->
+        <div class="scenes-section">
+            <div class="section-header">
+                <span class="section-title">Inputs</span>
+                <button class="edit-btn" id="btn-edit" onclick="toggleEditMode()">Edit</button>
+            </div>
+
+            <div id="main-panel">
+                <div class="btn-grid" id="button-container">
+                    <div style="color:var(--text-dim);font-size:0.8rem;">Loading...</div>
+                </div>
+                <button class="add-scene-btn" onclick="openModal()" id="add-btn">+ Add Input</button>
+            </div>
+        </div>
+
+        <!-- Switcher Panel -->
+        <div class="switcher-panel">
+            <button class="switcher-btn btn-cut" onclick="sendToVmix('Cut', '')">
+                ✂ CUT
+            </button>
+            <button class="switcher-btn btn-auto" onclick="sendToVmix('Merge', '')">
+                ⟳ AUTO
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Fullscreen Button -->
+    <button id="btn-fullscreen" onclick="toggleFullscreen()">⛶</button>
+
+    <!-- Add Button Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-box">
+            <div class="modal-title">Add Input Button</div>
+            <div class="form-group">
+                <label class="form-label">Label</label>
+                <input type="text" id="ipt-label" class="form-input" placeholder="Camera 1, Gameplay…"
+                    autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label class="form-label">vMix Input Number</label>
+                <input type="number" id="ipt-input" class="form-input" placeholder="1, 2, 3…">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveNewButton()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const container = document.getElementById('button-container');
+        const modal = document.getElementById('modal');
+
+        let fullConfig = { activePreset: "Default Preset", presets: {} };
+        let buttonsData = [];
+        let currentActive = null;
+        let currentPreview = null;
+        let isEditMode = false;
+        let sortable = null;
+        let timestampRefresh = Date.now();
+
+        let vibrateEnabled = localStorage.getItem('vmix_vibrate') !== 'false';
+        let numCols = parseInt(localStorage.getItem('vmix_cols') || '2');
+        let autoDuration = parseInt(localStorage.getItem('vmix_autodur') || '800');
+
+        // ---- Settings ----
+        function loadSettings() {
+            document.getElementById('vibration-toggle').checked = vibrateEnabled;
+            document.getElementById('vibration-label').textContent = vibrateEnabled ? 'เปิด' : 'ปิด';
+            document.getElementById('cols-slider').value = numCols;
+            document.getElementById('cols-value-label').textContent = numCols;
+            document.getElementById('auto-dur-slider').value = autoDuration;
+            document.getElementById('auto-dur-label').textContent = autoDuration + 'ms';
+            applyColumns();
+        }
+
+        function applyColumns() {
+            numCols = parseInt(document.getElementById('cols-slider').value);
+            document.getElementById('button-container').style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
+        }
+
+        function saveSettings() {
+            vibrateEnabled = document.getElementById('vibration-toggle').checked;
+            numCols = parseInt(document.getElementById('cols-slider').value);
+            autoDuration = parseInt(document.getElementById('auto-dur-slider').value);
+            localStorage.setItem('vmix_vibrate', vibrateEnabled);
+            localStorage.setItem('vmix_cols', numCols);
+            localStorage.setItem('vmix_autodur', autoDuration);
+            document.getElementById('vibration-label').textContent = vibrateEnabled ? 'เปิด' : 'ปิด';
+        }
+
+        function toggleSettings() {
+            document.getElementById('settings-panel').classList.toggle('open');
+        }
+
+        // ---- Fetch ----
+        async function fetchButtons() {
+            try {
+                const res = await fetch('/api/buttons');
+                fullConfig = await res.json();
+                if (!fullConfig.presets) fullConfig.presets = { "Default Preset": [] };
+                buttonsData = fullConfig.presets[fullConfig.activePreset] || [];
+                updatePresetDropdown();
+                renderButtons();
+            } catch (e) { console.error(e); }
+        }
+
+        // ---- Preset ----
+        function updatePresetDropdown() {
+            const sel = document.getElementById('preset-selector');
+            sel.innerHTML = '';
+            Object.keys(fullConfig.presets).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = name;
+                if (name === fullConfig.activePreset) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+
+        async function changePreset(name) {
+            if (!fullConfig.presets[name]) return;
+            fullConfig.activePreset = name;
+            buttonsData = fullConfig.presets[name];
+            renderButtons();
+            await saveToServer();
+        }
+
+        async function createNewPreset() {
+            const name = prompt("ชื่อ Preset ใหม่:");
+            if (!name?.trim()) return;
+            const t = name.trim();
+            if (fullConfig.presets[t]) { alert("ชื่อนี้มีอยู่แล้ว"); return; }
+            fullConfig.presets[t] = [];
+            fullConfig.activePreset = t;
+            buttonsData = [];
+            updatePresetDropdown();
+            renderButtons();
+            await saveToServer();
+        }
+
+        async function renameCurrentPreset() {
+            const old = fullConfig.activePreset;
+            const newName = prompt(`เปลี่ยนชื่อ '${old}' เป็น:`, old);
+            if (!newName?.trim() || newName.trim() === old) return;
+            const t = newName.trim();
+            if (fullConfig.presets[t]) { alert("ชื่อนี้มีอยู่แล้ว"); return; }
+            const newPresets = {};
+            for (const k of Object.keys(fullConfig.presets)) {
+                newPresets[k === old ? t : k] = fullConfig.presets[k];
+            }
+            fullConfig.presets = newPresets;
+            fullConfig.activePreset = t;
+            buttonsData = fullConfig.presets[t];
+            updatePresetDropdown();
+            await saveToServer();
+        }
+
+        async function deleteCurrentPreset() {
+            if (Object.keys(fullConfig.presets).length <= 1) { alert("ต้องมีอย่างน้อย 1 Preset"); return; }
+            if (!confirm(`ลบ Preset '${fullConfig.activePreset}' หรือไม่?`)) return;
+            delete fullConfig.presets[fullConfig.activePreset];
+            fullConfig.activePreset = Object.keys(fullConfig.presets)[0];
+            buttonsData = fullConfig.presets[fullConfig.activePreset];
+            updatePresetDropdown();
+            renderButtons();
+            await saveToServer();
+        }
+
+        // ---- Render ----
+        function renderButtons() {
+            container.innerHTML = '';
+            buttonsData.forEach((btn, index) => {
+                const div = document.createElement('div');
+                div.className = 'scene-btn';
+                div.id = `btn-${btn.input}`;
+                div.dataset.index = index;
+
+                div.onclick = (e) => {
+                    if (isEditMode) return;
+                    if (e.target.closest('.delete-badge')) return;
+                    sendToVmix("PreviewInput", btn.input);
+                };
+
+                div.innerHTML = `
+                    <div class="scene-btn-inner">
+                        <div class="scene-btn-content">
+                            <div class="scene-btn-label">${btn.label}</div>
+                            <div class="scene-btn-sub">Input ${btn.input}</div>
+                        </div>
+                    </div>
+                    <div class="state-badge">PGM</div>
+                    <button class="delete-badge" onclick="deleteButton(${index},event)">✕</button>
+                `;
+
+                div.style.backgroundImage = `url('/thumbnails/thumb_${btn.input}.jpg?t=${timestampRefresh}')`;
+                container.appendChild(div);
+            });
+
+            applyColumns();
+            updateHighlights();
+
+            if (!sortable) {
+                sortable = new Sortable(container, {
+                    animation: 120,
+                    disabled: !isEditMode,
+                    onEnd: async function () {
+                        const newOrder = [];
+                        container.querySelectorAll('.scene-btn').forEach(el => {
+                            const i = el.dataset.index;
+                            if (i !== undefined) newOrder.push(buttonsData[i]);
+                        });
+                        buttonsData = newOrder;
+                        await saveToServer();
+                        renderButtons();
+                    }
+                });
+            } else {
+                sortable.option('disabled', !isEditMode);
+            }
+        }
+
+
+
+        function updateHighlights() {
+            document.querySelectorAll('.scene-btn').forEach(el => {
+                el.classList.remove('program', 'preview');
+                const badge = el.querySelector('.state-badge');
+                if (badge) badge.textContent = 'PGM';
+            });
+
+            if (currentPreview) {
+                const el = document.getElementById(`btn-${currentPreview}`);
+                if (el) {
+                    el.classList.add('preview');
+                    const b = el.querySelector('.state-badge');
+                    if (b) b.textContent = 'PRV';
+                }
+            }
+
+            if (currentActive) {
+                const el = document.getElementById(`btn-${currentActive}`);
+                if (el) {
+                    el.classList.add('program');
+                    const b = el.querySelector('.state-badge');
+                    if (b) b.textContent = 'PGM';
+                }
+            }
+        }
+
+        // ---- Socket.io ----
+        socket.on('vmix-state', (state) => {
+            currentActive = state.active;
+            currentPreview = state.preview;
+            updateHighlights();
+        });
+
+        socket.on('buttons-updated', (cfg) => {
+            fullConfig = cfg;
+            buttonsData = fullConfig.presets[fullConfig.activePreset] || [];
+            updatePresetDropdown();
+            renderButtons();
+        });
+
+        socket.on('thumbnails-updated', (ts) => {
+            timestampRefresh = ts;
+            document.querySelectorAll('.scene-btn').forEach(btn => {
+                if (btn.id?.startsWith('btn-')) {
+                    const id = btn.id.replace('btn-', '');
+                    const url = `/thumbnails/thumb_${id}.jpg?t=${ts}`;
+                    const img = new Image();
+                    img.onload = () => { btn.style.backgroundImage = `url('${url}')`; };
+                    img.src = url;
+                }
+            });
+        });
+
+        socket.on('connect', () => {
+            const chip = document.getElementById('status-chip');
+            chip.classList.remove('offline');
+            document.getElementById('status-text').textContent = 'Online';
+        });
+
+        socket.on('disconnect', () => {
+            const chip = document.getElementById('status-chip');
+            chip.classList.add('offline');
+            document.getElementById('status-text').textContent = 'Offline';
+        });
+
+        // ---- vMix Command ----
+        async function sendToVmix(func, input) {
+            if (vibrateEnabled && navigator.vibrate) navigator.vibrate(40);
+            try {
+                await fetch('/api/vmix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ func, input })
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // ---- Edit Mode ----
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const panel = document.getElementById('main-panel');
+            const btn = document.getElementById('btn-edit');
+            if (isEditMode) {
+                panel.classList.add('edit-mode');
+                btn.classList.add('active');
+                btn.textContent = 'Done';
+            } else {
+                panel.classList.remove('edit-mode');
+                btn.classList.remove('active');
+                btn.textContent = 'Edit';
+            }
+            if (sortable) sortable.option('disabled', !isEditMode);
+        }
+
+        // ---- Modal ----
+        function openModal() {
+            document.getElementById('ipt-label').value = '';
+            document.getElementById('ipt-input').value = '';
+            modal.classList.add('open');
+            document.getElementById('ipt-label').focus();
+        }
+
+        function closeModal() { modal.classList.remove('open'); }
+
+        async function saveNewButton() {
+            const label = document.getElementById('ipt-label').value.trim();
+            const inputNum = document.getElementById('ipt-input').value.trim();
+            if (!label || !inputNum) { alert("กรอกข้อมูลให้ครบ"); return; }
+            buttonsData.push({ id: "b_" + Date.now(), label, input: inputNum });
+            await saveToServer();
+            closeModal();
+        }
+
+        async function deleteButton(index, e) {
+            e.stopPropagation();
+            if (confirm(`ลบปุ่ม '${buttonsData[index].label}'?`)) {
+                buttonsData.splice(index, 1);
+                await saveToServer();
+            }
+        }
+
+        async function saveToServer() {
+            fullConfig.presets[fullConfig.activePreset] = buttonsData;
+            await fetch('/api/buttons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fullConfig)
+            });
+        }
+
+        // ---- Fullscreen ----
+        function toggleFullscreen() {
+            const btn = document.getElementById('btn-fullscreen');
+            const elem = document.documentElement;
+            const isFull = document.fullscreenElement || document.webkitFullscreenElement;
+            if (!isFull) {
+                if (elem.requestFullscreen) elem.requestFullscreen();
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+                btn.textContent = '✕';
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                btn.textContent = '⛶';
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            document.getElementById('btn-fullscreen').textContent = document.fullscreenElement ? '✕' : '⛶';
+        });
+        document.addEventListener('webkitfullscreenchange', () => {
+            document.getElementById('btn-fullscreen').textContent = document.webkitFullscreenElement ? '✕' : '⛶';
+        });
+
+        // ---- Init ----
+        fetchButtons();
+        loadSettings();
+    </script>
+</body>
+
+</html>

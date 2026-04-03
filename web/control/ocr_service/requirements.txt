@@ -1,0 +1,11 @@
+opencv-python
+pytesseract
+numpy
+python-socketio[client]
+mss
+Pillow
+
+# PaddleOCR (Alternative - More Accurate)
+# Uncomment below to use PaddleOCR instead of Tesseract
+# paddlepaddle
+# paddleocr

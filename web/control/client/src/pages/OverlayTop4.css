@@ -1,0 +1,188 @@
+/* Base Layout */
+.top4-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    /* Bottom of screen */
+    padding-bottom: 80px;
+    /* Space from bottom edge */
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    /* Setup correct font */
+    transition: opacity 0.5s;
+}
+
+.top4-container.overlay-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.top4-container.overlay-visible {
+    opacity: 1;
+}
+
+.top4-grid {
+    display: flex;
+    gap: 30px;
+    /* Space between cards */
+    justify-content: center;
+    width: 100%;
+}
+
+/* Card Wrapper */
+.top4-card-wrapper {
+    width: 350px;
+    min-width: 350px;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* --- Section 1: Header (Team Info) --- */
+.top4-header-row {
+    height: 55px;
+    display: flex;
+    /* Gradient Background: Dark Left -> Light Right */
+    background: linear-gradient(315deg, rgba(23, 100, 193, 0.85) 35%, rgba(0, 0, 0, 0.7) 100%);
+    /* Border Styling */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Left Brand Area */
+.team-brand-area {
+    flex: 1;
+    /* Takes 60% approx based on gradient stop */
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.team-flag {
+    font-size: 24px;
+    margin-right: 12px;
+}
+
+.vertical-divider {
+    width: 2px;
+    height: 60%;
+    background: rgba(255, 255, 255, 0.3);
+    margin-right: 12px;
+}
+
+.team-logo-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.team-logo-placeholder {
+    font-size: 20px;
+}
+
+.team-tag-text {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+    font-style: italic;
+    /* Esport style */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Right Icons Area (Alive Bars) */
+.alive-bars {
+    width: 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    /* Gap between bars */
+}
+
+.bar {
+    width: 5px;
+    height: 24px;
+    border-radius: 0;
+    position: relative;
+    z-index: 5;
+}
+
+.bar.alive {
+    background: #F5C542;
+    /* PUBG Yellow */
+}
+
+.bar.knocked {
+    background: #ff0000;
+}
+
+.bar.dead-bar {
+    background: #555;
+}
+
+/* If team is wiped, turn yellow bars to grey just in case */
+.team-dead .bar.alive {
+    background: #555;
+}
+
+/* DEAD STATUS STYLE */
+.top4-card-wrapper.team-dead .top4-header-row {
+    background: linear-gradient(315deg, #000000 35%, #000000 100%) !important;
+    border-color: #333;
+}
+
+.top4-card-wrapper.team-dead .team-tag-text {
+    color: #727272;
+}
+
+.top4-card-wrapper.team-dead .top4-stats-row {
+    opacity: 0.5;
+}
+
+
+/* --- Section 2: Stats (WWCD) --- */
+.top4-stats-row {
+    height: 45px;
+    background: #1a1b2e;
+    /* Dark Navy/Black */
+    border-bottom-left-radius: 0px;
+    /* The round corner */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none;
+    /* Looks cleaner */
+    position: relative;
+    /* Optional: Side accent bar on the right? Reference has a slight lighter shade on right maybe? */
+}
+
+.label-wwcd {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #e4c868;
+    /* Gold */
+    font-style: italic;
+    margin-right: 15px;
+}
+
+.vertical-divider.small {
+    height: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    margin-right: 15px;
+}
+
+.value-wwcd {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #e4c868;
+    /* Gold */
+    font-style: italic;
+}
+
+
+/* Animation */
+/* Add simple fade/slide up if needed, using keyframes from before but simplified */

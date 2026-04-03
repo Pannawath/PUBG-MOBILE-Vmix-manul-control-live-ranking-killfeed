@@ -1,0 +1,239 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap');
+
+:root {
+    --primary: #00f2ff;
+    /* Electric Blue */
+    --secondary: #0078ff;
+    /* Deep Blue */
+    --dark: #050a14;
+    /* Very dark navy */
+    --dark-accent: #0a1525;
+    /* Navy */
+    --text: #ffffff;
+    --glass: rgba(0, 242, 255, 0.05);
+    --glass-border: rgba(0, 242, 255, 0.2);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Kanit', sans-serif;
+}
+
+body {
+    background-color: transparent;
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    /* Allow scroll if needed on small screens */
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    /* Wider container */
+    max-width: 1200px;
+    /* Max width increased */
+    padding: 40px;
+    gap: 50px;
+    position: relative;
+}
+
+/* Left side content (Title & Button) */
+.content-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Left align text */
+    justify-content: center;
+    text-align: left;
+}
+
+h1 {
+    font-size: 3.5rem;
+    /* Larger font */
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.2;
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+}
+
+h1 span {
+    color: var(--primary);
+    display: block;
+    /* Stack "PUBG" on new line or specific style */
+    font-size: 4.5rem;
+}
+
+/* Right side (Map) */
+.map-display {
+    flex: 1.5;
+    /* Map takes more space */
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--dark-accent);
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(0, 24, 50, 0.6);
+    transition: all 0.3s ease;
+}
+
+.map-display.active {
+    box-shadow: 0 0 60px rgba(0, 242, 255, 0.2);
+    border-color: var(--primary);
+}
+
+.map-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.5s ease;
+    transform: scale(1.15);
+    /* Crop out logos */
+}
+
+.map-image.show {
+    opacity: 1;
+}
+
+.map-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to top, rgba(5, 10, 20, 0.95), transparent);
+    padding: 2rem 2rem 1.5rem;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.map-display.revealed .map-overlay {
+    transform: translateY(0);
+}
+
+.map-name {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+}
+
+.controls {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.btn {
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+    border: none;
+    padding: 1.2rem 4rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 4px;
+    /* Slightly sharper or pill as needed */
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    /* Techy shape */
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    box-shadow: 0 5px 20px rgba(0, 120, 255, 0.4);
+    width: 100%;
+    /* Full width button in its container */
+    max-width: 300px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 242, 255, 0.6);
+    filter: brightness(1.2);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    background: #333;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    color: #555;
+}
+
+/* Glitch effect for selection */
+@keyframes glitch {
+    0% {
+        transform: translate(0)
+    }
+
+    20% {
+        transform: translate(-2px, 2px)
+    }
+
+    40% {
+        transform: translate(-2px, -2px)
+    }
+
+    60% {
+        transform: translate(2px, 2px)
+    }
+
+    80% {
+        transform: translate(2px, -2px)
+    }
+
+    100% {
+        transform: translate(0)
+    }
+}
+
+.shuffling {
+    animation: glitch 0.2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .content-side {
+        width: 100%;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    h1 span {
+        font-size: 3.5rem;
+    }
+
+    .controls {
+        justify-content: center;
+    }
+
+    .map-display {
+        flex: unset;
+        width: 100%;
+    }
+}

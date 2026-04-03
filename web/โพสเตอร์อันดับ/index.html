@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG Leaderboard Poster Generator</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Prompt:wght@300;400;600&family=Bai+Jamjuree:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PUBG LEADERBOARD</h1>
+                <p>Poster Generator</p>
+            </div>
+
+            <div class="control-panel">
+                <button id="btnSample" class="btn btn-secondary">
+                    <i class="icon">📝</i> ใส่ข้อมูลตัวอย่าง
+                </button>
+                <button id="btnClear" class="btn btn-danger">
+                    <i class="icon">🗑️</i> ล้างข้อมูล
+                </button>
+            </div>
+
+            <div class="teams-container">
+                <div class="column-header">
+                    <h3>Teams 1-8</h3>
+                </div>
+                <div id="teamsLeft" class="teams-list">
+                    <!-- JS will populate input fields here -->
+                </div>
+
+                <div class="column-header mt-4">
+                    <h3>Teams 9-16</h3>
+                </div>
+                <div id="teamsRight" class="teams-list">
+                    <!-- JS will populate input fields here -->
+                </div>
+            </div>
+
+            <div class="action-panel">
+                <button id="btnGenerate" class="btn btn-primary btn-lg">
+                    <i class="icon">⚡</i> สร้างรูปภาพ
+                </button>
+                <button id="btnDownload" class="btn btn-success btn-lg">
+                    <i class="icon">💾</i> ดาวน์โหลด PNG
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Preview Area -->
+        <main class="preview-area">
+            <div class="canvas-wrapper">
+                <canvas id="posterCanvas"></canvas>
+            </div>
+            <div class="status-bar">
+                <span>Resolution: 3656 x 2664 px</span>
+                <span id="statusText">Ready</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js?v=7"></script>
+</body>
+
+</html>

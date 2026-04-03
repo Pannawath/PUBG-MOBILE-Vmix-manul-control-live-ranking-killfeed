@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATEM & vMix Monitor</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-green: #00e676;
+            --accent-red: #ff1744;
+            --border-color: #333;
+            --active-red: #ff3b3b;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .status-bar {
+            background-color: var(--panel-bg);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #555;
+            transition: background-color 0.3s;
+        }
+
+        .indicator.online {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        .indicator.offline {
+            background-color: var(--accent-red);
+            box-shadow: 0 0 8px var(--accent-red);
+        }
+
+        .dashboard {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #2c2c2c;
+            border: 2px solid #444;
+            color: #fff;
+            padding: 15px 0;
+            border-radius: 6px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: default;
+            /* ให้ดูเฉยๆ กดไม่ได้ */
+        }
+
+        /* สีตอนถูกเลือก (Program) */
+        .btn.program {
+            background-color: var(--active-red);
+            border-color: #ff8a8a;
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 23, 68, 0.6);
+            transform: scale(1.05);
+            /* เด้งขึ้นมานิดนึง */
+        }
+
+        /* สีตอนพรีวิว (Preview - สีเขียวเผื่ออนาคตใช้) */
+        .btn.preview {
+            background-color: var(--accent-green);
+            border-color: #b2ff59;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+        }
+
+        .log-area {
+            margin-top: 15px;
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 10px;
+            height: 120px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            border-bottom: 1px dashed #222;
+            padding-bottom: 2px;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .time-stamp {
+            color: #666;
+            margin-right: 5px;
+        }
+
+        .mapping-info {
+            background-color: #262626;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #bbb;
+        }
+
+        .mapping-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>ATEM Mini 🎮 vMix</h1>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <div id="atem-indicator" class="indicator offline"></div>
+            <span>ATEM Status</span>
+        </div>
+        <div class="status-item">
+            <div id="server-indicator" class="indicator offline"></div>
+            <span>Server Script</span>
+        </div>
+    </div>
+
+    <div class="dashboard">
+
+        <!-- ฝั่ง ATEM -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>ATEM Mini (Program)</span>
+            </div>
+            <div class="button-grid" id="atem-buttons">
+                <div class="btn" id="atem-btn-1">CAM 1</div>
+                <div class="btn" id="atem-btn-2">CAM 2</div>
+                <div class="btn" id="atem-btn-3">CAM 3</div>
+                <div class="btn" id="atem-btn-4">CAM 4</div>
+            </div>
+
+            <div class="log-area" id="atem-log">
+                <!-- Log จะโผล่ตรงนี้ -->
+            </div>
+        </div>
+
+        <!-- ฝั่ง vMix -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>vMix Action </span>
+            </div>
+
+            <div class="mapping-info">
+                <div style="color:#fff; margin-bottom:8px; text-decoration:underline;">คำสั่งที่ถูกส่งไป:</div>
+                <div class="mapping-item"><span>ATEM Button 1</span> <span>vMix: Cut to Scene 1</span></div>
+                <div class="mapping-item"><span>ATEM Button 2</span> <span>vMix: Cut to Scene 2</span></div>
+                <div class="mapping-item"><span>ATEM Button 3</span> <span>vMix: Overlay 1 In (Scene 3)</span></div>
+                <div class="mapping-item"><span>ATEM Button 4</span> <span>vMix: Play Video (Scene 4)</span></div>
+            </div>
+
+            <div class="log-area" id="vmix-log">
+                <!-- Log จะโผล่ตรงนี้ -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const socket = io();
+
+        // Elements
+        const serverIndicator = document.getElementById('server-indicator');
+        const atemIndicator = document.getElementById('atem-indicator');
+        const atemLogArea = document.getElementById('atem-log');
+        const vmixLogArea = document.getElementById('vmix-log');
+
+        // ฟังก์ชันล้างปุ่มและลงสีปุ่มที่ถูกเปิด
+        function updateActiveButton(inputNumber) {
+            // ล้างสีสถานะปุ่มเก่าๆ ก่อน
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`atem-btn-${i}`);
+                if (btn) {
+                    btn.classList.remove('program');
+                }
+            }
+
+            // ใส่สีแดงให้ปุ่มล่าสุด
+            const activeBtn = document.getElementById(`atem-btn-${inputNumber}`);
+            if (activeBtn) {
+                activeBtn.classList.add('program');
+            }
+        }
+
+        // ฟังก์ชันเขียน Log
+        function addLog(area, message) {
+            const time = new Date().toLocaleTimeString('th-TH');
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            div.innerHTML = `<span class="time-stamp">[${time}]</span> ${message}`;
+            area.prepend(div); // ใส่ด้านบน
+        }
+
+        // --- Socket.IO Events ---
+        socket.on('connect', () => {
+            serverIndicator.classList.replace('offline', 'online');
+            addLog(atemLogArea, "เชื่อมต่อกับ Local Web Server แล้ว");
+        });
+
+        socket.on('disconnect', () => {
+            serverIndicator.classList.replace('online', 'offline');
+            atemIndicator.classList.replace('online', 'offline');
+            addLog(atemLogArea, "ขาดการเชื่อมต่อกับ Server");
+        });
+
+        // รับสถานะจาก ATEM (ตอนต่อติด)
+        socket.on('atem-status', (data) => {
+            if (data.status === 'connected') {
+                atemIndicator.classList.replace('offline', 'online');
+                addLog(atemLogArea, "เชื่อมต่อ ATEM (IP: 192.168.10.240) สำเร็จแล้ว!");
+            } else {
+                atemIndicator.classList.replace('online', 'offline');
+                addLog(atemLogArea, "ATEM ขาดการเชื่อมต่อ...");
+            }
+        });
+
+        // รับค่าปุ่มที่ถูกกดสลับบนเครื่อง ATEM
+        socket.on('program-changed', (inputNumber) => {
+            updateActiveButton(inputNumber);
+            addLog(atemLogArea, `<span style="color:#ff8a8a;">[สลับกล้อง] -> กดปุ่มเบอร์ ${inputNumber}</span>`);
+        });
+
+        // รับการแจ้งเตือนว่ายิงคำสั่ง vMix ไปแล้ว
+        socket.on('vmix-action', (data) => {
+            addLog(vmixLogArea, `ส่งคำสั่ง <span style="color:#00e676;">${data.command}</span> (Input: ${data.input}) สำเร็จ`);
+        });
+
+        // รับแจ้ง Error จาก vMix
+        socket.on('vmix-error', (msg) => {
+            addLog(vmixLogArea, `<span style="color:#ff1744;">Error ส่งไม่ไป: ${msg}</span>`);
+        });
+    </script>
+</body>
+
+</html>

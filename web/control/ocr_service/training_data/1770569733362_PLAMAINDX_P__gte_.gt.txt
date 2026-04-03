@@ -1,0 +1,1 @@
+PLAMAINDX (P= _gte )

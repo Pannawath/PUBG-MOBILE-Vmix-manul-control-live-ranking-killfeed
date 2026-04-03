@@ -1,0 +1,15 @@
+{
+    "server_url": "http://localhost:3001",
+    "tesseract_cmd": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+    "monitor_index": 1,
+    "scan_region": {
+        "left": 160,
+        "top": 243,
+        "width": 250,
+        "height": 26
+    },
+    "debug_mode": true,
+    "img_thresh": 140,
+    "img_scale": 4.0,
+    "img_invert": false
+}

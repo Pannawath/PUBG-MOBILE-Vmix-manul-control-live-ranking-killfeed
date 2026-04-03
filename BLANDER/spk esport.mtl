@@ -1,0 +1,67 @@
+# Blender 5.0.0 MTL File: 'spk esport.blend'
+# www.blender.org
+
+newmtl Bead-blasted_stainless_steel
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl Blue_Sapphire
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Gold_metal
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/gold_basecolor.jpg
+map_Ks C:/gold_specular.jpg
+map_refl C:/gold_metallic.jpg
+map_Bump -bm 1.000000 C:/gold_normal_opengl.jpg
+
+newmtl Plastic_Material
+Ns 490.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.670722 0.768847 1.000000
+Ks 0.481818 0.481818 0.481818
+Ke 0.000000 0.000000 0.000000
+Ni 1.460000
+d 1.000000
+illum 2
+
+newmtl Scratched_black_metal
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/metal03_diffuse.jpg
+map_Ns C:/metal03_roughness.jpg
+map_refl C:/metal03_metalness.jpg
+map_Bump -bm 1.000000 C:/metal03_normal_opengl.jpg
+
+newmtl Shiny_Gold_clean_(gold)
+Ns 569.338867
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_refl C:/gold_metallic.jpg

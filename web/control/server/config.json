@@ -1,0 +1,24 @@
+{
+  "numMatches": 3,
+  "numTeams": 16,
+  "maps": [
+    "Erangel",
+    "Miramar",
+    "Sanhok",
+    "Rondo"
+  ],
+  "mapBasePath1": "C:\\Users\\mapay\\Desktop\\PUBG LIVE\\pic\\map\\map1\\",
+  "mapBasePath2": "C:\\Users\\mapay\\Desktop\\PUBG LIVE\\pic\\map\\map2\\",
+  "logoBasePath": "C:\\Users\\mapay\\Desktop\\PUBG LIVE\\team_logos\\",
+  "vmixHost": "http://192.168.1.107:8088",
+  "placementPoints": {
+    "1": 10,
+    "2": 6,
+    "3": 5,
+    "4": 4,
+    "5": 3,
+    "6": 2,
+    "7": 1,
+    "8": 1
+  }
+}
