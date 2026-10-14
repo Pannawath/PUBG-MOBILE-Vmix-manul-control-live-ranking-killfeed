@@ -12,23 +12,23 @@
 ```mermaid
 graph TD
     subgraph INPUTS["Input & Data Sources"]
-        SCRCPY["📱 จอ (scrcpy) / โทรศัพท์นักแข่ง"]
-        GSHEET["📊 Google Sheets / PUBG.xlsx"]
-        OCR["🔍 OCR Service (PaddleOCR / EasyOCR)"]
+        SCRCPY["จอ (scrcpy) / โทรศัพท์นักแข่ง"]
+        GSHEET["Google Sheets / PUBG.xlsx"]
+        OCR["OCR Service (PaddleOCR / EasyOCR)"]
     end
 
     subgraph CORE_WEB["Web Controllers (Node.js & Express)"]
-        CONTROL["🎮 web/control (Main Control Panel & Killfeed)"]
-        RANKING["🏆 web/รับบบเปลี่ยน ranking (Live Leaderboard Sync)"]
-        POSTER["🖼️ web/โพสเตอร์อันดับ (Poster Generator Canvas)"]
-        RNDMAP["🗺️ web/random map (Random Map Overlay)"]
-        VMOBILE["📲 web/vmix-mobile (Mobile Remote Buttons)"]
-        ATEM["🎛️ web/old-atem-controller (ATEM Mini Switcher)"]
+        CONTROL["web/control (Main Control Panel & Killfeed)"]
+        RANKING["web/รับบบเปลี่ยน ranking (Live Leaderboard Sync)"]
+        POSTER["web/โพสเตอร์อันดับ (Poster Generator Canvas)"]
+        RNDMAP["web/random map (Random Map Overlay)"]
+        VMOBILE["web/vmix-mobile (Mobile Remote Buttons)"]
+        ATEM["web/old-atem-controller (ATEM Mini Switcher)"]
     end
 
     subgraph PRODUCTION["Broadcast Engine & Assets"]
-        VMIX["🎬 vMix Production (HTTP API / Text / CSV Sync)"]
-        GRAPHICS["🎨 Asset Hub (AF, BLANDER, GFX, GT, Sound, team_logos)"]
+        VMIX["vMix Production (HTTP API / Text / CSV Sync)"]
+        GRAPHICS["Asset Hub (AF, BLANDER, GFX, GT, Sound, team_logos)"]
     end
 
     SCRCPY -->|Cast Video| OCR
@@ -50,27 +50,27 @@ graph TD
 
 ```text
 PUBG-MOBILE-Vmix-manul-control-live-ranking-killfeed/
-├── .github/workflows/          # ระบบอัตโนมัติ GitHub Actions (เช่น สคริปต์สลับเป็น Private)
-├── AF/                         # ไฟล์โปรเจกต์ After Effects (.aep) สำหรับแอนิเมชัน Killfeed
-├── BLANDER/                    # โมเดล 3D และฉาก Blender (.blend, .obj) สำหรับฉาก Broadcast
-├── GFX/                        # วิดีโอพื้นหลังและโมชันกราฟิกส์ (.mp4, .mov)
-├── GT/                         # ไฟล์ไตเติล vMix Title Designer (.gtzip) สำหรับ Killfeed
-├── PH/                         # ไฟล์ Photoshop และเทมเพลตสำหรับออกแบบกราฟิก
-├── Sound/                      # ไฟล์เสียงประกอบ เอฟเฟกต์เสียง และดนตรี (.mp3)
-├── team_logos/                 # โลโก้ของทีมแข่งขัน PUBG แต่ละทีม
-├── จอ/                          # โปรแกรม scrcpy-win64 สำหรับดึงภาพหน้าจอมือถือสดผ่าน USB/Wi-Fi
-├── โพสเตอร์/                   # ไฟล์ภาพและเทมเพลตโปสเตอร์สรุปคะแนน
-├── web/                        # โค้ดระบบควบคุมและ Web Apps ทั้งหมด
-│   ├── control/                # ระบบหลัก: แดชบอร์ดคอนโทรล, สรุปคะแนน, Killfeed และ OCR
-│   ├── รับบบเปลี่ยน ranking/    # ระบบสลับตารางคะแนน ซิงค์ Google Sheets ออกเป็น CSV เข้า vMix
-│   ├── โพสเตอร์อันดับ/          # เว็บแคนวาสสร้างภาพโปสเตอร์ตารางคะแนนอัตโนมัติ (ความละเอียด 4K)
-│   ├── random map/             # ระบบสุ่มแมพ PUBG (Erangel, Miramar, Sanhok, Rondo)
-│   ├── vmix-mobile/            # แผงปุ่มลัดควบคุม vMix ผ่านหน้าเว็บมือถือ
-│   ├── old-atem-controller/    # ระบบควบคุมการสลับสวิตช์ภาพ Blackmagic ATEM เชื่อมกับ vMix
-│   └── tests/                  # Automated Tests (Playwright) สำหรับทดสอบระบบ UI
-├── PUBG.xlsx                   # ไฟล์ Excel แม่แบบสำหรับใส่รายชื่อทีมและสถิติคลิปคะแนน
-├── verify_vmix_socket.js       # สคริปต์ Node.js สำหรับเทสการเชื่อมต่อ Socket.IO และไฟล์ส่งออก vMix
-└── README.md                   # เอกสารคู่มืออธิบายโปรเจกต์
+|-- .github/workflows/          # ระบบอัตโนมัติ GitHub Actions (เช่น สคริปต์สลับเป็น Private)
+|-- AF/                         # ไฟล์โปรเจกต์ After Effects (.aep) สำหรับแอนิเมชัน Killfeed
+|-- BLANDER/                    # โมเดล 3D และฉาก Blender (.blend, .obj) สำหรับฉาก Broadcast
+|-- GFX/                        # วิดีโอพื้นหลังและโมชันกราฟิกส์ (.mp4, .mov)
+|-- GT/                         # ไฟล์ไตเติล vMix Title Designer (.gtzip) สำหรับ Killfeed
+|-- PH/                         # ไฟล์ Photoshop และเทมเพลตสำหรับออกแบบกราฟิก
+|-- Sound/                      # ไฟล์เสียงประกอบ เอฟเฟกต์เสียง และดนตรี (.mp3)
+|-- team_logos/                 # โลโก้ของทีมแข่งขัน PUBG แต่ละทีม
+|-- จอ/                          # โปรแกรม scrcpy-win64 สำหรับดึงภาพหน้าจอมือถือสดผ่าน USB/Wi-Fi
+|-- โพสเตอร์/                   # ไฟล์ภาพและเทมเพลตโปสเตอร์สรุปคะแนน
+|-- web/                        # โค้ดระบบควบคุมและ Web Apps ทั้งหมด
+|   |-- control/                # ระบบหลัก: แดชบอร์ดคอนโทรล, สรุปคะแนน, Killfeed และ OCR
+|   |-- รับบบเปลี่ยน ranking/    # ระบบสลับตารางคะแนน ซิงค์ Google Sheets ออกเป็น CSV เข้า vMix
+|   |-- โพสเตอร์อันดับ/          # เว็บแคนวาสสร้างภาพโปสเตอร์ตารางคะแนนอัตโนมัติ (ความละเอียด 4K)
+|   |-- random map/             # ระบบสุ่มแมพ PUBG (Erangel, Miramar, Sanhok, Rondo)
+|   |-- vmix-mobile/            # แผงปุ่มลัดควบคุม vMix ผ่านหน้าเว็บมือถือ
+|   |-- old-atem-controller/    # ระบบควบคุมการสลับสวิตช์ภาพ Blackmagic ATEM เชื่อมกับ vMix
+|   `-- tests/                  # Automated Tests (Playwright) สำหรับทดสอบระบบ UI
+|-- PUBG.xlsx                   # ไฟล์ Excel แม่แบบสำหรับใส่รายชื่อทีมและสถิติคลิปคะแนน
+|-- verify_vmix_socket.js       # สคริปต์ Node.js สำหรับเทสการเชื่อมต่อ Socket.IO และไฟล์ส่งออก vMix
+`-- README.md                   # เอกสารคู่มืออธิบายโปรเจกต์
 ```
 
 ---
@@ -101,7 +101,7 @@ PUBG-MOBILE-Vmix-manul-control-live-ranking-killfeed/
 | `web/random map/` | **Random Map Overlay:** ระบบสุ่มแมพและวงล้อสุ่มแมพ PUBG Mobile พร้อมทั้งหน้าแผงคุม (`control.html`) และหน้าสำหรับนำไปใส่ Browser Source ใน vMix (`index.html`) |
 | `web/vmix-mobile/` | **Mobile Controller:** เว็บแอปรองรับการเปิดบนโทรศัพท์มือถือในวง Wi-Fi เดียวกัน เพื่อกดปุ่มลัดสั่ง Cut, สลับ Transition หรือสั่ง Play บน vMix ได้จากระยะไกล |
 | `web/old-atem-controller/` | **ATEM Integration:** สคริปต์เชื่อมต่อกล้องและสวิตเชอร์ ATEM Mini (`192.168.1.240`) ให้ทำงานสัมพันธ์กับ vMix API |
-| `web/launcher.js` / `run_system.bat` | สคริปต์รันระบบทั้งหมดขึ้นมาพร้อมกันด้วยคำสั่งเดียวเพื่อความสะดวกในการเริ่มถ่ายทอดสด |
+| `web/launcher.js` / `web/run_system.bat` | สคริปต์รันระบบทั้งหมดขึ้นมาพร้อมกันด้วยคำสั่งเดียวเพื่อความสะดวกในการเริ่มถ่ายทอดสด |
 
 ---
 
