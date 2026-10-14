@@ -1,0 +1,36 @@
+name: Auto Make Repository Private
+
+on:
+  schedule:
+    # Run once daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-and-privatize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check 6 months deadline and privatize repository
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT_ADMIN }}
+          script: |
+            const deadline = new Date('2027-04-15T00:00:00Z');
+            const now = new Date();
+
+            console.log(`Current Date: ${now.toISOString()}`);
+            console.log(`Target Private Deadline (6 Months): ${deadline.toISOString()}`);
+
+            if (now >= deadline) {
+              console.log('Deadline passed. Converting repository visibility to private...');
+              await github.rest.repos.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                private: true
+              });
+              console.log('Successfully set repository to private.');
+            } else {
+              const diffMs = deadline - now;
+              const remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+              console.log(`Repository remains public. Days remaining: ${remainingDays}`);
+            }

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SOCKET_URL = 'http://localhost:3001';
-const VMIX_DIR = 'c:\\Users\\mapay\\Desktop\\PUBG LIVE\\web\\control\\server\\vmix';
+const VMIX_DIR = process.env.VMIX_DIR || path.join(__dirname, 'web', 'control', 'server', 'vmix');
 
 console.log('🔄 Connecting to Socket.IO Server:', SOCKET_URL);
 const socket = io(SOCKET_URL);

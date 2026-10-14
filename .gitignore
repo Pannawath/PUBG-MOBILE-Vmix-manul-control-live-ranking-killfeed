@@ -6,3 +6,5 @@ node_modules/
 *.exe
 *.vmc
 *.vmix
+credentials.json
+sheets.json
